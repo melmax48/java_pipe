@@ -1,0 +1,47 @@
+version: "3.3"
+services:
+  ignite-master:
+    image: apacheignite/ignite:2.7.0
+    environment:
+      - "CONFIG_URI=file:///data/ignite/ignite-config.xml"
+    configs:
+      - source: ignite-config
+        target: /data/ignite/ignite-config.xml
+    networks:
+      - ignite-test-net
+  ignite:
+    image: apacheignite/ignite:2.7.0
+    depends_on:
+      - ignite-master
+    environment: 
+      - "CONFIG_URI=file:///data/ignite/ignite-config.xml" 
+    configs: 
+      - source: ignite-config 
+        target: /data/ignite/ignite-config.xml
+    networks:
+      - ignite-test-net
+  app:
+    image: openjdk:8-jre
+    ports:
+      - mode: host
+        target: 8080
+        published: 8080
+      - mode: swarm
+        target: 5005
+        published: 5005
+    volumes:
+      - "./target/test-service-1.0-SNAPSHOT.jar:/app/test-service-1.0-SNAPSHOT.jar:rw"
+    entrypoint: ["java", "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005", "-jar", "/app/test-service-1.0-SNAPSHOT.jar"]
+    environment: 
+      - "IP_FINDER_ADDRS=ignite-master"
+      - "IGNITE_CLIENT_MODE=true"
+    depends_on:
+      - ignite
+    networks:
+      - ignite-test-net      
+networks:
+  ignite-test-net:
+    driver: overlay
+configs: 
+    ignite-config: 
+        file: ./ignite-config.xml
