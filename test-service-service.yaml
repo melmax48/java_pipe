@@ -7,6 +7,6 @@ spec:
   selector:
     app: test-service
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 443
+      targetPort: 443
       nodePort: 31007

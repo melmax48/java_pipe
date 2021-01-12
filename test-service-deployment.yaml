@@ -14,10 +14,30 @@ spec:
     spec:
       containers:
         - name: test-service-container
-          image: "docker.io/melmax48/testservice:lab3"
+          image: "docker.io/javapipe2020/testservice:ssl"
+          imagePullPolicy: Always
           env:
-            - name: IP_FINDER_ADDRS
-              value: "0.0.0.0"
+            - name: SSL_KEYSTORE_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: testservicesecret
+                  key: keystore_password
+            - name: SSL_TRUSTSTORE_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: testservicesecret
+                  key: truststore_password
+          envFrom:
+            - configMapRef:
+                name: testservice-config
+          volumeMounts:
+            - mountPath: "/app/ssl"
+              name: ssl-volume
+              readOnly: true
           ports:
-            - name: http
-              containerPort: 8080
+            - name: https
+              containerPort: 443
+      volumes:
+        - name: ssl-volume
+          secret:
+            secretName: testservicesecret

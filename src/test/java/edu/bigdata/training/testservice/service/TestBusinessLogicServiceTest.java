@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -33,8 +32,7 @@ public class TestBusinessLogicServiceTest {
     private TestServiceRepository testServiceRepository;
 
     @Test
-    public void testCreate(){
-
+    public void testCreateAndGet(){
         //create
         Person person = new Person("test");
 
@@ -43,52 +41,12 @@ public class TestBusinessLogicServiceTest {
         Assert.assertEquals(person.getName(), personEntity.getName());
         Mockito.verify(testServiceRepository, Mockito.times(1)).save(personEntity);
 
-    }
-
-    @Test
-    public void testGetAll(){
-
         //getAll
         List<PersonEntity> personEntityList = testBusinessLogicService.processGetAll();
 
         Assert.assertEquals("name1", personEntityList.get(0).getName());
         Assert.assertEquals("name2", personEntityList.get(1).getName());
         Mockito.verify(testServiceRepository, Mockito.times(1)).getAll();
-
-    }
-
-    @Test
-    public void testGet(){
-
-        //get
-        PersonEntity personEntity = testBusinessLogicService.processGet(UUID.randomUUID().toString());
-
-        Assert.assertEquals("name", personEntity.getName());
-        Mockito.verify(testServiceRepository, Mockito.times(1)).get(any());
-
-    }
-
-    @Test
-    public void testDelete(){
-
-        //delete
-        PersonEntity personEntity = new PersonEntity("test");
-        testBusinessLogicService.processDel(personEntity.getId().toString());
-
-        Mockito.verify(testServiceRepository, Mockito.times(1)).del(any());
-
-    }
-
-    @Test
-    public void testUpdate(){
-
-        //update
-        Person newPerson = new Person("newName");
-        PersonEntity personEntity = new PersonEntity("test");
-        PersonEntity newPersonEntity = testBusinessLogicService.processUpdate(personEntity.getId().toString(), newPerson);
-
-        Assert.assertEquals(newPerson.getName(), newPersonEntity.getName());
-        Mockito.verify(testServiceRepository, Mockito.times(1)).update(any(),any());
 
     }
 
@@ -101,7 +59,6 @@ public class TestBusinessLogicServiceTest {
             when(testServiceRepository.get(any())).thenReturn(new PersonEntity("name"));
             when(testServiceRepository.getAll())
                     .thenReturn(Arrays.asList(new PersonEntity("name1"),new PersonEntity("name2")));
-            when(testServiceRepository.update(any(), any())).thenReturn(new PersonEntity("newName"));
             return testServiceRepository;
         }
 
